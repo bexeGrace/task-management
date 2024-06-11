@@ -4,8 +4,48 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 export const fetchBoards = createAsyncThunk("boards/fetchBoards", async () => {
   const response = await fetch("http://localhost:4000/api/tasks/tasks");
   const data = await response.json();
+  console.log(data)
   return data.boards; // Adjust this based on your API response structure
 });
+
+export const addColumnAsync = createAsyncThunk(
+  'columns/addColumn',
+  async (columnData, { rejectWithValue }) => {
+    try {
+      const response = await fetch('http://localhost:4000/api/tasks/create-column', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(columnData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add column');
+      }
+
+      const data = await response.json();
+      console.log(data)
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const addBoardAsync = createAsyncThunk("boards/addBoard", async (board) => {
+  const response = await fetch("http://localhost:4000/api/tasks/create-board", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(board)
+  });
+  const data = await response.json();
+  return data; // Adjust this based on your API response structure
+});
+
+
 
 const boardsSlice = createSlice({
   name: "boards",
@@ -16,7 +56,7 @@ const boardsSlice = createSlice({
   },
   reducers: {
     // Your existing reducers here
-    addBoard: (state, action) => {
+    addBoard: async (state, action) => {
       const isActive = state.boards.length > 0 ? false : true;
       const payload = action.payload;
       const board = {
@@ -111,6 +151,22 @@ const boardsSlice = createSlice({
       .addCase(fetchBoards.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(addBoardAsync.fulfilled, (state, action) => {
+        // Add the new board to the state when the API call is successful
+        state.boards.push(action.payload);
+      })
+      .addCase(addBoardAsync.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(addColumnAsync.fulfilled, (state, action) => {
+        const board = state.boards.boards.find((board) => board.isActive);
+        if (board) {
+          board.columns.push(action.payload);
+        }
+      })
+      .addCase(addColumnAsync.rejected, (state, action) => {
+        state.error = action.payload;
       });
   },
 });

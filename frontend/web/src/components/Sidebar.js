@@ -16,6 +16,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen }) {
   const dispatch = useDispatch();
   const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
   const [colorTheme, setTheme] = useDarkMode();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [darkSide, setDarkSide] = useState(
     colorTheme === "light" ? true : false
   );
@@ -31,8 +32,10 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen }) {
     setIsSideBarOpen((curr) => !curr);
   };
 
+
   return (
     <div>
+      {isLoggedIn ?
       <div
         className={
           isSideBarOpen
@@ -119,9 +122,10 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen }) {
               <img src={showSidebarIcon} alt="showSidebarIcon" />
             </div>
           )}
+      
         </div>
       </div>
-
+      : null}
       {isBoardModalOpen && (
         <AddEditBoardModal
           type="add"

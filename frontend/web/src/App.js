@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Home from "./components/Home";
 import EmptyBoard from "./components/EmptyBoard";
 import { fetchBoards, setBoardActive } from "./redux/boardsSlice";
+import Welcome from "./components/Welcome";
 
 function App() {
   const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
@@ -11,6 +12,7 @@ function App() {
   const boards = useSelector((state) => state.boards.boards);
   const boardStatus = useSelector((state) => state.boards.status);
   const error = useSelector((state) => state.boards.error);
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
     if (boardStatus === 'idle') {
@@ -18,8 +20,15 @@ function App() {
     }
   }, [boardStatus, dispatch]);
 
+  const token = localStorage.getItem('authToken')
+  useEffect(() =>{
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, [token])
+
   useEffect(() => {
-    if (Boolean(boards) && boards.length > 0 && !boards.some((board) => board.isActive)) {
+    if (boards && boards.length > 0 && !boards.some((board) => board.isActive)) {
       dispatch(setBoardActive({ index: 0 }));
     }
   }, [boards, dispatch]);
@@ -34,7 +43,9 @@ function App() {
 
   return (
     <div className="overflow-hidden overflow-x-scroll">
-      {boards.length > 0 ? (
+      {isLoggedIn ? 
+      <>
+      {boards && boards.length > 0 ? (
         <>
           <Header setIsBoardModalOpen={setIsBoardModalOpen} isBoardModalOpen={isBoardModalOpen} />
           <Home setIsBoardModalOpen={setIsBoardModalOpen} isBoardModalOpen={isBoardModalOpen} />
@@ -42,6 +53,9 @@ function App() {
       ) : (
         <EmptyBoard type="add" />
       )}
+       </>:
+        <Welcome />
+}
     </div>
   );
 }
