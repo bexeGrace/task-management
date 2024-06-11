@@ -1,12 +1,23 @@
-import { createSlice } from "@reduxjs/toolkit";
-import data from "../data.json";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+// Asynchronous thunk to fetch boards data
+export const fetchBoards = createAsyncThunk("boards/fetchBoards", async () => {
+  const response = await fetch("http://localhost:4000/api/tasks/tasks");
+  const data = await response.json();
+  return data.boards; // Adjust this based on your API response structure
+});
 
 const boardsSlice = createSlice({
   name: "boards",
-  initialState: data.boards,
+  initialState: {
+    boards: [],
+    status: "idle",
+    error: null,
+  },
   reducers: {
+    // Your existing reducers here
     addBoard: (state, action) => {
-      const isActive = state.length > 0 ? false : true;
+      const isActive = state.boards.length > 0 ? false : true;
       const payload = action.payload;
       const board = {
         name: payload.name,
@@ -14,45 +25,35 @@ const boardsSlice = createSlice({
         columns: [],
       };
       board.columns = payload.newColumns;
-      state.push(board);
+      state.boards.push(board);
     },
     editBoard: (state, action) => {
       const payload = action.payload;
-      const board = state.find((board) => board.isActive);
+      const board = state.boards.find((board) => board.isActive);
       board.name = payload.name;
       board.columns = payload.newColumns;
     },
     deleteBoard: (state) => {
-      const board = state.find((board) => board.isActive);
-      state.splice(state.indexOf(board), 1);
+      const board = state.boards.find((board) => board.isActive);
+      state.boards.splice(state.boards.indexOf(board), 1);
     },
     setBoardActive: (state, action) => {
-      state.map((board, index) => {
-        index === action.payload.index
-          ? (board.isActive = true)
-          : (board.isActive = false);
+      state.boards.map((board, index) => {
+        index === action.payload.index ? (board.isActive = true) : (board.isActive = false);
         return board;
       });
     },
     addTask: (state, action) => {
-      const { title, status, description, subtasks, newColIndex } =
-        action.payload;
+      const { title, status, description, subtasks, newColIndex } = action.payload;
       const task = { title, description, subtasks, status };
-      const board = state.find((board) => board.isActive);
+      const board = state.boards.find((board) => board.isActive);
       const column = board.columns.find((col, index) => index === newColIndex);
       column.tasks.push(task);
     },
     editTask: (state, action) => {
-      const {
-        title,
-        status,
-        description,
-        subtasks,
-        prevColIndex,
-        newColIndex,
-        taskIndex,
-      } = action.payload;
-      const board = state.find((board) => board.isActive);
+      const { title, status, description, subtasks, prevColIndex, newColIndex, taskIndex } =
+        action.payload;
+      const board = state.boards.find((board) => board.isActive);
       const column = board.columns.find((col, index) => index === prevColIndex);
       const task = column.tasks.find((task, index) => index === taskIndex);
       task.title = title;
@@ -66,14 +67,14 @@ const boardsSlice = createSlice({
     },
     dragTask: (state, action) => {
       const { colIndex, prevColIndex, taskIndex } = action.payload;
-      const board = state.find((board) => board.isActive);
+      const board = state.boards.find((board) => board.isActive);
       const prevCol = board.columns.find((col, i) => i === prevColIndex);
       const task = prevCol.tasks.splice(taskIndex, 1)[0];
       board.columns.find((col, i) => i === colIndex).tasks.push(task);
     },
     setSubtaskCompleted: (state, action) => {
       const payload = action.payload;
-      const board = state.find((board) => board.isActive);
+      const board = state.boards.find((board) => board.isActive);
       const col = board.columns.find((col, i) => i === payload.colIndex);
       const task = col.tasks.find((task, i) => i === payload.taskIndex);
       const subtask = task.subtasks.find((subtask, i) => i === payload.index);
@@ -81,7 +82,7 @@ const boardsSlice = createSlice({
     },
     setTaskStatus: (state, action) => {
       const payload = action.payload;
-      const board = state.find((board) => board.isActive);
+      const board = state.boards.find((board) => board.isActive);
       const columns = board.columns;
       const col = columns.find((col, i) => i === payload.colIndex);
       if (payload.colIndex === payload.newColIndex) return;
@@ -93,11 +94,38 @@ const boardsSlice = createSlice({
     },
     deleteTask: (state, action) => {
       const payload = action.payload;
-      const board = state.find((board) => board.isActive);
+      const board = state.boards.find((board) => board.isActive);
       const col = board.columns.find((col, i) => i === payload.colIndex);
       col.tasks = col.tasks.filter((task, i) => i !== payload.taskIndex);
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchBoards.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchBoards.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.boards = action.payload;
+      })
+      .addCase(fetchBoards.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      });
+  },
 });
+
+export const {
+  addBoard,
+  editBoard,
+  deleteBoard,
+  setBoardActive,
+  addTask,
+  editTask,
+  dragTask,
+  setSubtaskCompleted,
+  setTaskStatus,
+  deleteTask,
+} = boardsSlice.actions;
 
 export default boardsSlice;

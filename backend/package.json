@@ -24,5 +24,6 @@
     "nodemon": "^2.0.21",
     "path": "^0.12.7",
     "vercel": "^28.16.12"
-  }
+  },
+  "proxy": "http://localhost:4000"
 }

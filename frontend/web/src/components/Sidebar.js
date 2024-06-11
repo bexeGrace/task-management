@@ -25,7 +25,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen }) {
     setDarkSide(checked);
   };
 
-  const boards = useSelector((state) => state.boards);
+  const boards = useSelector((state) => state.boards.boards);
 
   const toggleSidebar = () => {
     setIsSideBarOpen((curr) => !curr);
