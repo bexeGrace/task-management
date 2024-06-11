@@ -4,7 +4,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const users = require("./routes/users");
-const auth = require("./routes/auth")
+const auths = require("./routes/auth");
+const tasks = require("./routes/tasks")
 
 dotenv.config();
 
@@ -48,8 +49,9 @@ mongoose
   .catch((err) => console.error("Could not connect to MongoDB...", err));
 
 app.use(bodyParser.json());
-app.use("/api", users);
-app.use("/auth", auth);
+app.use("/api/users", users);
+app.use("/auth", auths);
+app.use("/api/tasks", tasks)
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`Listening on port ${port}`));

@@ -5,7 +5,7 @@ const Task = require("../models/task")
 
 const router = express.Router();
 
-router.post("/tasks", async (req, res) => {
+router.post("/create", async (req, res) => {
     const { title, description, assignedTo } = req.body;
   
     const task = new Task({

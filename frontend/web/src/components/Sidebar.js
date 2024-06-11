@@ -46,7 +46,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen }) {
           {isSideBarOpen && (
             <div className=" bg-white  dark:bg-[#2b2c37]    w-full   py-4 rounded-xl">
               <h3 className=" dark:text-gray-300 text-gray-600 font-semibold mx-4 mb-8 ">
-                ALL BOARDS ({boards?.length})
+                ALL TASK GROUPS ({boards?.length})
               </h3>
 
               <div className="  dropdown-borad flex flex-col h-[70vh]  justify-between ">
@@ -74,7 +74,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen }) {
                     }}
                   >
                     <img src={boardIcon} className="   filter-white  h-4 " />
-                    <p className=" text-lg font-bold  ">Create New Board </p>
+                    <p className=" text-lg font-bold  ">Create New Task Group </p>
                   </div>
                 </div>
 
