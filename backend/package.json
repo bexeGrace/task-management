@@ -4,14 +4,14 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "NODE_ENV=development node server.js",
+    "dev": "node server.js",
     "start": "NODE_ENV=production node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Amil Abdullazadeh",
+  "author": "Betsegaw Mesele",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^5.1.0",
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
